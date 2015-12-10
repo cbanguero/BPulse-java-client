@@ -1,0 +1,415 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>BPulse Java Client</title>
+
+    <link href="stylesheets/screen.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="stylesheets/print.css" rel="stylesheet" type="text/css" media="print" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+      <script src="javascripts/all.js" type="text/javascript"></script>
+
+      <script>
+        $(function() {
+          setupLanguages(["java"]);
+        });
+      </script>
+  </head>
+
+  <body class="index">
+    <a href="#" id="nav-button">
+      <span>
+        NAV
+        <img src="images/navbar.png" />
+      </span>
+    </a>
+    <div class="tocify-wrapper">
+      <img src="images/logo.png" />
+        <div class="lang-selector">
+              <a href="#" data-language-name="java">java</a>
+        </div>
+        <div class="search">
+          <input type="text" class="search" id="input-search" placeholder="Search">
+        </div>
+        <ul class="search-results"></ul>
+      <div id="toc">
+      </div>
+        <ul class="toc-footer">
+            <li><a href='#'>© Bpulse 2015</a></li>
+            <li><a href='www.bpulse.io'>www.bpulse.io</a></li>
+        </ul>
+    </div>
+    <div class="page-wrapper">
+      <div class="dark-box"></div>
+      <div class="content">
+        <h1 id="bpulse-sdk-java">bpulse-sdk-java</h1>
+
+<p>Bpulse SDK Java or BPulse Java Client is a conector between any java based application subscribed to BPULSE Service and the PULSES COLLECTOR REST SERVICE.
+This README explains how to integrate the conector with the target client application, configuration parameters and how to use it.</p>
+
+<h1 id="requirements">Requirements</h1>
+
+<ul>
+<li><a href="https://github.com/bpulse/bpulse-protobuf-java">bpulse-protobuf-java</a></li>
+<li><a href="https://maven.apache.org/download.cgi">Apache Maven 3.x.x</a></li>
+<li><a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html">JDK Version 1.7+</a></li>
+</ul>
+
+<h1 id="build-dependencies">Build dependencies</h1>
+
+<p>The following dependencies are required to build the sdk and are also required in the classpath of your application at runtime:</p>
+
+<ul>
+<li><strong>BPulse dependencies</strong>
+
+<ul>
+<li>bpulse.protobuf[latest].jar</li>
+</ul></li>
+<li><strong>Google Protobuf dependencies</strong>
+
+<ul>
+<li>protobuf-java-format-1.2.jar</li>
+<li>protobuf-java.2.5.0.jar</li>
+</ul></li>
+<li><strong>Apache http dependencies</strong>
+
+<ul>
+<li>httpclient-4.4.1.jar</li>
+<li>httpcore-4.4.1.jar</li>
+<li>commons-logging-1.2.jar</li>
+<li>commons-codec-1.9.jar</li>
+</ul></li>
+<li><strong>H2 Database Engine dependencies</strong>
+
+<ul>
+<li>h2-1.4.186.jar</li>
+</ul></li>
+<li><strong>SLF4J dependencies</strong>
+
+<ul>
+<li>slf4j-api-1.7.5.jar</li>
+<li>Corresponding Binding for used logging framework (See <strong>Binding with a logging framework at deployment time</strong> at <a href="http://www.slf4j.org/manual.html">http://www.slf4j.org/manual.html</a>)</li>
+</ul></li>
+</ul>
+
+<p>This is a maven project, so all of this dependencies are already added in the given pom.xml but you must have them in mind if you build your application without maven or the runtime classpath is provided by another third party.</p>
+
+<h1 id="build">Build</h1>
+
+<p>Just clone the repository and make sure all the dependencies are satisfied, then in a terminal go to the project folder and execute:</p>
+<pre class="highlight shell"><code><span class="gp">$ </span>mvn clean install
+</code></pre>
+
+<p><strong>Notes:</strong>
+* If any errors occurs during build related to bpulse-protobuf dependency, please make sure that the version in this pom.xml matches with the version you build of <a href="https://github.com/bpulse/bpulse-protobuf-java">bpulse-protobuf-java</a>.</p>
+
+<h1 id="importing-the-project">Importing the project</h1>
+
+<h2 id="importing-to-a-maven-project">Importing to a Maven project</h2>
+
+<p>After building the project and install it on the maven repo, add this dependency to your pom.xml</p>
+<pre class="highlight xml"><code><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>me.bpulse<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>bpulse-java-client<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>1.0.0-SNAPSHOT<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+
+</code></pre>
+
+<p>Remember the dependencies mentioned above incase your current classpath doesn&rsquo;t have them at runtime, also keep in mind the version of this project you are building.</p>
+
+<h2 id="importing-to-a-classic-java-project">Importing to a classic Java project</h2>
+
+<p>Build the sdk using
+<code class="prettyprint">bash
+$ mvn clean package
+</code>
+Then take the generated bpulse-java-client-[version].jar under target/ directory and add it to your classpath along with
+the other dependencies mentioned.</p>
+
+<h2 id="starting-your-application">Starting your application</h2>
+
+<p>The SDK needs some configuration properties that indicate the client how should work and where to connect so you must provide a properties file when you start your application or the application server where your application run, so to do that, simply provide the <strong>bpulse.client.config</strong> as <em>VM_ARG</em>, for example:
+<code class="prettyprint">bash
+$ java -jar myapp.jar -Dbpulse.client.config=path/to/config.properties
+</code>
+If your application runs on an application server, simply append this vm arg to the existing one depending on your server.</p>
+
+<blockquote>
+<p>This is an example of a basic configuration file content:</p>
+</blockquote>
+<pre class="highlight plaintext"><code>bpulse.client.periodInMinutesNextExecTimer=1
+bpulse.client.maxNumberPulsesReadFromTimer=240000
+bpulse.client.bpulseUsername=collector@hotelbeds.com
+bpulse.client.bpulsePassword=collector123
+bpulse.client.bpulseRestURL=http://[bpulse.host]/app.collector/collector/pulses
+bpulse.client.pulsesRepositoryDBPath=path/to/any/temp/folder
+bpulse.client.pulsesRepositoryDBMaxSizeBytes=10737418240
+bpulse.client.pulsesRepositoryMode=MEM
+bpulse.client.pulsesRepositoryMemMaxNumberPulses=750000
+</code></pre>
+
+<h1 id="usage">Usage</h1>
+
+<p>The starting point is the BPulseJavaClient class. It implements two methods: getInstance() and sendPulse(PulsesRQ) to publish them via BPULSE COLLECTOR REST SERVICE.</p>
+<pre class="highlight java"><code><span class="c1">//get the BPulseJavaClient instance. It manages the pulses repository and begins the pulses notification timer.</span>
+<span class="n">BPulseJavaClient</span> <span class="n">client</span> <span class="o">=</span> <span class="n">BPulseJavaClient</span><span class="o">.</span><span class="na">getInstance</span><span class="o">();</span>
+</code></pre>
+
+<blockquote>
+<p>Then use a combination of <em>me.bpulse.domain.proto.collector.CollectorMessageRQ.PulsesRQ</em>, <em>me.bpulse.domain.proto.collector.CollectorMessageRQ.Value</em> and <em>me.bpulse.domain.proto.collector.CollectorMessageRQ.Pulse</em> in order to build the pulses you want to send according to the Pulse Definition made in BPULSE, for example:</p>
+</blockquote>
+<pre class="highlight java"><code><span class="c1">//Request instance</span>
+<span class="n">PulsesRQ</span> <span class="n">request</span><span class="o">;</span>
+<span class="c1">//Use the builder provided to create pulses instances</span>
+<span class="n">PulsesRQ</span><span class="o">.</span><span class="na">Builder</span> <span class="n">pulses</span> <span class="o">=</span> <span class="n">PulsesRQ</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">();</span>
+<span class="c1">//Pulse version, send 1.0 always, we will use this field later.</span>
+<span class="n">pulses</span><span class="o">.</span><span class="na">setVersion</span><span class="o">(</span><span class="s">"1.0"</span><span class="o">);</span>
+
+<span class="c1">//Use the Pulse builder to create each pulse individually</span>
+<span class="n">Pulse</span><span class="o">.</span><span class="na">Builder</span> <span class="n">pulse</span> <span class="o">=</span> <span class="n">Pulse</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">();</span>
+
+<span class="c1">//Name of the pulse definition, the same as defined using the BPULSE web app</span>
+<span class="n">pulse</span><span class="o">.</span><span class="na">setTypeId</span><span class="o">(</span><span class="s">"bpulse_hotelbeds_jfp"</span><span class="o">);</span>
+<span class="c1">//Time of the pulse, usually should be the current time but you can set whatever time you need</span>
+<span class="n">pulse</span><span class="o">.</span><span class="na">setTime</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">());</span>
+<span class="c1">//</span>
+<span class="n">pulse</span><span class="o">.</span><span class="na">setInstanceId</span><span class="o">(</span><span class="n">String</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="mi">1</span><span class="o">));</span>
+
+<span class="c1">//Use the Value builder to assing the different pulse values to each pulse</span>
+<span class="n">Value</span><span class="o">.</span><span class="na">Builder</span> <span class="n">value</span> <span class="o">=</span> <span class="n">Value</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">();</span>
+<span class="c1">//Name of the pulse attribute</span>
+<span class="n">value</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">"attribute_name"</span><span class="o">);</span>
+<span class="c1">//Value of the current attribute</span>
+<span class="n">value</span><span class="o">.</span><span class="na">addValues</span><span class="o">(</span><span class="s">"attribute_value"</span><span class="o">);</span>
+<span class="c1">//Add the created value to the pulse instance</span>
+<span class="n">pulse</span><span class="o">.</span><span class="na">addValues</span><span class="o">(</span><span class="n">value</span><span class="o">);</span>
+
+<span class="c1">//Same as before but for a time value TODO Joda time</span>
+<span class="n">value</span> <span class="o">=</span> <span class="n">Value</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">();</span>
+<span class="n">value</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">"fechaProceso"</span><span class="o">);</span>          
+<span class="n">value</span><span class="o">.</span><span class="na">addValues</span><span class="o">(</span><span class="n">fmt</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="k">new</span> <span class="n">DateTime</span><span class="o">()));</span>
+<span class="n">pulse</span><span class="o">.</span><span class="na">addValues</span><span class="o">(</span><span class="n">value</span><span class="o">);</span>
+
+<span class="c1">//Same as before but for a numeric value</span>
+<span class="n">value</span> <span class="o">=</span> <span class="n">Value</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">();</span>
+<span class="n">value</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">"numeric_attribute"</span><span class="o">);</span>
+<span class="n">value</span><span class="o">.</span><span class="na">addValues</span><span class="o">(</span><span class="s">"123456789"</span><span class="o">);</span>
+<span class="n">pulse</span><span class="o">.</span><span class="na">addValues</span><span class="o">(</span><span class="n">value</span><span class="o">);</span>
+
+<span class="c1">//Add the pulse to the pulses collection</span>
+<span class="n">pulses</span><span class="o">.</span><span class="na">addPulse</span><span class="o">(</span><span class="n">pulse</span><span class="o">);</span>
+
+<span class="c1">//Then build the pulses request</span>
+<span class="n">request</span> <span class="o">=</span> <span class="n">pulses</span><span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+</code></pre>
+
+<blockquote>
+<p>Finally send the pulse created with:</p>
+</blockquote>
+<pre class="highlight java"><code><span class="c1">//invoke the operation for inserting the pulse into pulses repository.</span>
+<span class="n">client</span><span class="o">.</span><span class="na">sendPulse</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+
+</code></pre>
+
+<blockquote>
+<p>And that&rsquo;s it!, now you are sending pulses to BPULSE and can see them using the web dashboard.</p>
+</blockquote>
+
+<h2 id="available-configuration-parameters">Available Configuration Parameters</h2>
+
+<p>BPulse java client has a configuration file to define the main parameters for sending and processing pulses (pulses repository path, number of threads for notifying pulses via BPULSE COLLECTOR REST SERVICE, etc.). It&rsquo;s definition is expected through java options property <strong>bpulse.client.config</strong> (e.g <strong>-Dbpulse.client.config=C:\tmp\config.properties</strong>).</p>
+
+<p>All properties are defined below:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">Variable name</th>
+<th style="text-align: left">Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left">bpulse.client.periodInMinutesNextExecTimer</td>
+<td style="text-align: left">Delay time in minutes between timer executions for pulses notification (default value = 1).</td>
+</tr>
+<tr>
+<td style="text-align: left">bpulse.client.periodInMinutesNextExecTimer</td>
+<td style="text-align: left">Delay time in minutes between timer executions for pulses notification (default value = 1).</td>
+</tr>
+<tr>
+<td style="text-align: left">bpulse.client.maxNumberPulsesReadFromTimer</td>
+<td style="text-align: left">Max number of read pulses for each timer execution from pulsesRepositoryDB for sending to BPULSE COLLECTOR REST SERVICE (default value = 180000).</td>
+</tr>
+<tr>
+<td style="text-align: left">bpulse.client.bpulseUsername</td>
+<td style="text-align: left">Client&rsquo;s Username for sending pulses to BPULSE COLLECTOR SERVICE.</td>
+</tr>
+<tr>
+<td style="text-align: left">bpulse.client.bpulsePassword</td>
+<td style="text-align: left">Client&rsquo;s Password  for sending pulses to BPULSE COLLECTOR SERVICE.</td>
+</tr>
+<tr>
+<td style="text-align: left">bpulse.client.bpulseRestURL</td>
+<td style="text-align: left">BPULSE COLLECTOR REST SERVICE URL.</td>
+</tr>
+<tr>
+<td style="text-align: left">bpulse.client.pulsesRepositoryDBPath</td>
+<td style="text-align: left">System Path to create the Pulses Repository (e.g C:/tmp/pulses_repository).</td>
+</tr>
+<tr>
+<td style="text-align: left">bpulse.client.pulsesRepositoryDBMaxSizeBytes</td>
+<td style="text-align: left">Pulses Repositories&rsquo; Allowed max size in bytes (default value = 1073741824).</td>
+</tr>
+<tr>
+<td style="text-align: left">bpulse.client.pulsesRepositoryMode</td>
+<td style="text-align: left">Pulses Repositories&rsquo; Mode:  MEM=PULSES IN MEMORY DB= PULSES IN EMBEDDED DATABASE.</td>
+</tr>
+<tr>
+<td style="text-align: left">bpulse.client.pulsesRepositoryMemMaxNumberPulses</td>
+<td style="text-align: left">When the pulses repositories&rsquo; mode is MEM, it&rsquo;s necessary define the maximum number of pulses in memory(default value = 1000000).</td>
+</tr>
+</tbody></table>
+
+<p>An example of configuration file is shown:</p>
+
+<h2 id="about-logging">About Logging</h2>
+
+<p>BPulse Java Client uses SLF4J API for register logs from pulse processing sending via BPULSE REST SERVICE. SLF4J uses a set of binding dependencies for each supported logging framework (log4j, tinylog, jdk logging, logback). If the target application uses someone of these frameworks, it&rsquo;s neccessary add the related 
+binding dependency like these:</p>
+
+<blockquote>
+<p><strong>SLF4J Logging Framework Bindings</strong></p>
+</blockquote>
+<pre class="highlight xml"><code><span class="c">&lt;!-- Dependency for Tinylog binding --&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.tinylog<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>slf4j-binding<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>1.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+
+<span class="c">&lt;!-- Dependency for Logback binding --&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>ch.qos.logback<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>logback-classic<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>1.0.13<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+
+<span class="c">&lt;!-- Dependency for Apache log4j binding --&gt;</span>
+<span class="nt">&lt;dependency&gt;</span> 
+    <span class="nt">&lt;groupId&gt;</span>org.slf4j<span class="nt">&lt;/groupId&gt;</span> 
+    <span class="nt">&lt;artifactId&gt;</span>slf4j-log4j12<span class="nt">&lt;/artifactId&gt;</span> 
+    <span class="nt">&lt;version&gt;</span>1.7.5<span class="nt">&lt;/version&gt;</span> 
+<span class="nt">&lt;/dependency&gt;</span>
+
+</code></pre>
+
+<blockquote>
+<p>Each binding is associated with a version of logging API (i.e in the log4j case, the version 1.7.5 of slf4j-log4j12 uses by default Apache log4j 1.2.17).
+If your target application uses another version for these logging APIs, you must exclude it from the maven dependency and manage your own logging version. 
+In the case of log4j it would be something like this:</p>
+</blockquote>
+<pre class="highlight xml"><code><span class="c">&lt;!-- Excludes the log4j default version managed by SLF4J binding --&gt;</span>
+<span class="nt">&lt;dependency&gt;</span> 
+    <span class="nt">&lt;groupId&gt;</span>org.slf4j<span class="nt">&lt;/groupId&gt;</span> 
+    <span class="nt">&lt;artifactId&gt;</span>slf4j-log4j12<span class="nt">&lt;/artifactId&gt;</span> 
+    <span class="nt">&lt;version&gt;</span>1.7.5<span class="nt">&lt;/version&gt;</span> 
+    <span class="nt">&lt;exclusions&gt;</span> 
+        <span class="nt">&lt;exclusion&gt;</span> 
+            <span class="nt">&lt;groupId&gt;</span>log4j<span class="nt">&lt;/groupId&gt;</span> 
+            <span class="nt">&lt;artifactId&gt;</span>log4j<span class="nt">&lt;/artifactId&gt;</span> 
+        <span class="nt">&lt;/exclusion&gt;</span> 
+    <span class="nt">&lt;/exclusions&gt;</span> 
+<span class="nt">&lt;/dependency&gt;</span>
+
+<span class="c">&lt;!-- Includes your own log4j version (1.2.12 instead of 1.2.17 in this case) --&gt;</span>
+<span class="nt">&lt;dependency&gt;</span> 
+    <span class="nt">&lt;groupId&gt;</span>log4j<span class="nt">&lt;/groupId&gt;</span> 
+    <span class="nt">&lt;artifactId&gt;</span>log4j<span class="nt">&lt;/artifactId&gt;</span> 
+    <span class="nt">&lt;version&gt;</span>1.2.12<span class="nt">&lt;/version&gt;</span> 
+<span class="nt">&lt;/dependency&gt;</span>
+
+</code></pre>
+
+<h2 id="logging-configuration-parameters">Logging Configuration Parameters</h2>
+
+<p>After selecting the logging api, it&rsquo;s necessary to add a java option according to the used logging framework:</p>
+
+<p><strong>tinylog java option:</strong> -Dtinylog.configuration=C:\tmp\tinylog.properties</p>
+
+<blockquote>
+<p><strong>Tinylog&rsquo;s properties file example:</strong></p>
+</blockquote>
+<pre class="highlight properties"><code><span class="py">tinylog.writer</span> <span class="p">=</span> <span class="s">rollingfile</span>
+<span class="py">tinylog.writer.filename</span> <span class="p">=</span> <span class="s">C:/tmp/log/bpulse-java-client-tinylog.log</span>
+<span class="py">tinylog.writer.backups</span> <span class="p">=</span> <span class="s">10</span>
+<span class="py">tinylog.writer.label</span> <span class="p">=</span> <span class="s">timestamp</span>
+<span class="py">tinylog.writer.policies</span> <span class="p">=</span> <span class="s">startup, size: 10KB</span>
+</code></pre>
+
+<p><strong>log4j java option:</strong> -Dlog4j.configuration=file:&ldquo;C:\tmp\log4j.properties&rdquo;</p>
+
+<blockquote>
+<p><strong>log4j&rsquo;s properties file example:</strong></p>
+</blockquote>
+<pre class="highlight properties"><code><span class="c">##LOG4J CONFIGURATION##
+</span><span class="py">log4j.logger.bpulseLogger</span><span class="p">=</span><span class="s">INFO, bpulseLogger</span>
+<span class="c"># File appender
+</span><span class="py">log4j.appender.bpulseLogger</span><span class="p">=</span><span class="s">org.apache.log4j.RollingFileAppender</span>
+<span class="py">log4j.appender.bpulseLogger.layout</span><span class="p">=</span><span class="s">org.apache.log4j.PatternLayout</span>
+<span class="c">#%-7p %d{(dd/MM/yyyy) HH:mm:ss} [%c{1}]%t %m%n
+#%d{yyyy-MM-dd HH:mm:ss} %-5p - %m%n
+</span><span class="py">log4j.appender.bpulseLogger.layout.ConversionPattern</span><span class="p">=</span><span class="s">%-7p %d{(dd/MM/yyyy) HH:mm:ss} [%c{1}]%t %m%n</span>
+<span class="py">log4j.appender.bpulseLogger.File</span><span class="p">=</span><span class="s">C:/tmp/log/bpulse-java-client.log</span>
+<span class="py">log4j.appender.bpulseLogger.MaxFileSize</span><span class="p">=</span><span class="s">25MB</span>
+<span class="py">log4j.appender.bpulseLogger.MaxBackupIndex</span><span class="p">=</span><span class="s">10</span>
+</code></pre>
+
+<p><strong>logback java option:</strong> -Dlogback.configurationFile=C:\tmp\logback.xml</p>
+
+<blockquote>
+<p><strong>logback&rsquo;s properties file example:</strong></p>
+</blockquote>
+<pre class="highlight xml"><code><span class="nt">&lt;configuration&gt;</span>
+<span class="nt">&lt;appender</span> <span class="na">name=</span><span class="s">"FILE"</span> <span class="na">class=</span><span class="s">"ch.qos.logback.core.FileAppender"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;file&gt;</span>C:/tmp/log/bpulse-java-client-logback.log<span class="nt">&lt;/file&gt;</span>
+
+    <span class="nt">&lt;encoder&gt;</span>
+      <span class="nt">&lt;pattern&gt;</span>%date %level [%thread] %logger{10} [%file:%line] %msg%n<span class="nt">&lt;/pattern&gt;</span>
+    <span class="nt">&lt;/encoder&gt;</span>
+  <span class="nt">&lt;/appender&gt;</span>
+
+  <span class="nt">&lt;appender</span> <span class="na">name=</span><span class="s">"STDOUT"</span> <span class="na">class=</span><span class="s">"ch.qos.logback.core.ConsoleAppender"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;encoder&gt;</span>
+      <span class="nt">&lt;pattern&gt;</span>%msg%n<span class="nt">&lt;/pattern&gt;</span>
+    <span class="nt">&lt;/encoder&gt;</span>
+  <span class="nt">&lt;/appender&gt;</span>
+
+  <span class="nt">&lt;root</span> <span class="na">level=</span><span class="s">"debug"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">"FILE"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">"STDOUT"</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/root&gt;</span>
+<span class="nt">&lt;/configuration&gt;</span>
+</code></pre>
+
+<p>In case of the target system has its own logging properties file, it&rsquo;s necessary to add the corresponding lines mentioned above to it.</p>
+
+<h1 id="contact-us">Contact us</h1>
+
+<p>You can reach the Developer Platform team at jtenganan@innova4j.com</p>
+
+<h1 id="license">License</h1>
+
+<p>The Bpulse Protobuf Java is licensed under the Apache License 2.0. Details can be found in the LICENSE file.</p>
+
+      </div>
+      <div class="dark-box">
+          <div class="lang-selector">
+                <a href="#" data-language-name="java">java</a>
+          </div>
+      </div>
+    </div>
+  </body>
+</html>
