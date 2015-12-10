@@ -1,130 +1,307 @@
-Slate
-========
 
-[![Build Status](https://travis-ci.org/tripit/slate.svg?branch=master)](https://travis-ci.org/tripit/slate) [![Dependency Status](https://gemnasium.com/tripit/slate.png)](https://gemnasium.com/tripit/slate)
+# bpulse-sdk-java
 
-Slate helps you create beautiful API documentation. Think of it as an intelligent, responsive documentation template for your API.
+Bpulse SDK Java or BPulse Java Client is a conector between any java based application subscribed to BPULSE Service and the PULSES COLLECTOR REST SERVICE.
+This README explains how to integrate the conector with the target client application, configuration parameters and how to use it.
 
-<img src="https://dl.dropboxusercontent.com/u/95847291/github%20images/slate/slate_screenshot_new.png" width=700 alt="Screenshot of Example Documentation created with Slate">
+# Requirements
 
-*The example above was created with Slate. Check it out at [tripit.github.io/slate](http://tripit.github.io/slate).*
+* [bpulse-protobuf-java](https://github.com/bpulse/bpulse-protobuf-java)
+* [Apache Maven 3.x.x](https://maven.apache.org/download.cgi)
+* [JDK Version 1.7+](http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html)
 
-Features
-------------
+# Build dependencies
+The following dependencies are required to build the sdk and are also required in the classpath of your application at runtime:
 
-* **Clean, intuitive design** — with Slate, the description of your API is on the left side of your documentation, and all the code examples are on the right side. Inspired by [Stripe's](https://stripe.com/docs/api) and [Paypal's](https://developer.paypal.com/webapps/developer/docs/api/) API docs. Slate is responsive, so it looks great on tablets, phones, and even print.
+* **BPulse dependencies**
+ * bpulse.protobuf\[latest].jar
+* **Google Protobuf dependencies**
+ * protobuf-java-format-1.2.jar
+ * protobuf-java.2.5.0.jar
+* **Apache http dependencies**
+ * httpclient-4.4.1.jar
+ * httpcore-4.4.1.jar
+ * commons-logging-1.2.jar
+ * commons-codec-1.9.jar
+* **H2 Database Engine dependencies**
+ * h2-1.4.186.jar
+* **SLF4J dependencies**
+ * slf4j-api-1.7.5.jar
+ * Corresponding Binding for used logging framework (See **Binding with a logging framework at deployment time** at [http://www.slf4j.org/manual.html](http://www.slf4j.org/manual.html))
 
-* **Everything on a single page** — gone are the days where your users had to search through a million pages to find what they wanted. Slate puts the entire documentation on a single page. We haven't sacrificed linkability, though. As you scroll, your browser's hash will update to the nearest header, so linking to a particular point in the documentation is still natural and easy.
+This is a maven project, so all of this dependencies are already added in the given pom.xml but you must have them in mind if you build your application without maven or the runtime classpath is provided by another third party.
 
-* **Slate is just Markdown** — when you write docs with Slate, you're just writing Markdown, which makes it simple to edit and understand. Everything is written in Markdown — even the code samples are just Markdown code blocks!
+# Build
+Just clone the repository and make sure all the dependencies are satisfied, then in a terminal go to the project folder and execute:
 
-* **Write code samples in multiple languages** — if your API has bindings in multiple programming languages, you easily put in tabs to switch between them. In your document, you'll distinguish different languages by specifying the language name at the top of each code block, just like with Github Flavored Markdown!
+```bash
+$ mvn clean install
+```
+**Notes:**
+* If any errors occurs during build related to bpulse-protobuf dependency, please make sure that the version in this pom.xml matches with the version you build of [bpulse-protobuf-java](https://github.com/bpulse/bpulse-protobuf-java).
+ 
 
-* **Out-of-the-box syntax highlighting** for [almost 60 languages](http://rouge.jayferd.us/demo), no configuration required.
+# Importing the project
 
-* **Automatic, smoothly scrolling table of contents** on the far left of the page. As you scroll, it displays your current position in the document. It's fast, too. We're using Slate at TripIt to build documentation for our new API, where our table of contents has over 180 entries. We've made sure that the performance remains excellent, even for larger documents.
+## Importing to a Maven project
+After building the project and install it on the maven repo, add this dependency to your pom.xml
 
-* **Let your users update your documentation for you** — by default, your Slate-generated documentation is hosted in a public Github repository. Not only does this mean you get free hosting for your docs with Github Pages, but it also makes it's simple for other developers to make pull requests to your docs if they find typos or other problems. Of course, if you don't want to, you're welcome to not use Github and host your docs elsewhere!
+```xml
+<dependency>
+	<groupId>me.bpulse</groupId>
+	<artifactId>bpulse-java-client</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+</dependency>
 
-Getting starting with Slate is super easy! Simply fork this repository, and then follow the instructions below. Or, if you'd like to check out what Slate is capable of, take a look at the [sample docs](http://tripit.github.io/slate).
-
-<!--As an example, you can check out the [TripIt API docs](http://tripit.github.io/api), which we create with Slate. You can also view the source of the [markdown file used to generate it](http://github.com/tripit/api/blob/master/source/index.md).-->
-
-Getting Started with Slate
-------------------------------
-
-### Prerequisites
-
-You're going to need:
-
- - **Linux or OS X** — Windows may work, but is unsupported.
- - **Ruby, version 1.9.3 or newer**
- - **Bundler** — If Ruby is already installed, but the `bundle` command doesn't work, just run `gem install bundler` in a terminal.
-
-### Getting Set Up
-
- 1. Fork this repository on Github.
- 2. Clone *your forked repository* (not our original one) to your hard drive with `git clone https://github.com/YOURUSERNAME/slate.git`
- 3. `cd slate`
- 4. Install all dependencies: `bundle install`
- 5. Start the test server: `bundle exec middleman server`
-
-Or use the included Dockerfile! (must install Docker first)
-
-```shell
-docker build -t slate .
-docker run -d -p 4567:4567 --name slate -v $(pwd)/source:/app/source slate
 ```
 
-You can now see the docs at <http://localhost:4567>. Whoa! That was fast!
+Remember the dependencies mentioned above incase your current classpath doesn't have them at runtime, also keep in mind the version of this project you are building.
 
-*Note: if you're using the Docker setup on OSX, the docs will be
-availalable at the output of `boot2docker ip` instead of `localhost:4567`.*
+## Importing to a classic Java project
+Build the sdk using
+```bash
+$ mvn clean package
+```
+Then take the generated bpulse-java-client-[version].jar under target/ directory and add it to your classpath along with
+the other dependencies mentioned.
 
-Now that Slate is all set up your machine, you'll probably want to learn more about [editing Slate markdown](https://github.com/tripit/slate/wiki/Markdown-Syntax), or [how to publish your docs](https://github.com/tripit/slate/wiki/Deploying-Slate).
+## Starting your application
+The SDK needs some configuration properties that indicate the client how should work and where to connect so you must provide a properties file when you start your application or the application server where your application run, so to do that, simply provide the **bpulse.client.config** as *VM_ARG*, for example:
+```bash
+$ java -jar myapp.jar -Dbpulse.client.config=path/to/config.properties
+```
+If your application runs on an application server, simply append this vm arg to the existing one depending on your server.
 
-Examples of Slate in the Wild
----------------------------------
+This is an example of a basic configuration file content:
+```properties
+#BPULSE JAVA CLIENT CONFIGURATION PROPERTIES
+bpulse.client.periodInMinutesNextExecTimer=1
+bpulse.client.maxNumberPulsesReadFromTimer=240000
+bpulse.client.bpulseUsername=collector@hotelbeds.com
+bpulse.client.bpulsePassword=collector123
+bpulse.client.bpulseRestURL=http://[bpulse.host]/app.collector/collector/pulses
+bpulse.client.pulsesRepositoryDBPath=path/to/any/temp/folder
+bpulse.client.pulsesRepositoryDBMaxSizeBytes=10737418240
+bpulse.client.pulsesRepositoryMode=MEM
+bpulse.client.pulsesRepositoryMemMaxNumberPulses=750000
+```
 
-* [Travis-CI's API docs](http://docs.travis-ci.com/api/)
-* [Mozilla's localForage docs](http://mozilla.github.io/localForage/)
-* [Mozilla Recroom](http://mozilla.github.io/recroom/)
-* [Drcaban's Build a Quine tutorial](http://drcabana.github.io/build-a-quine/#introduction)
-* [PricePlow API docs](https://www.priceplow.com/api/documentation)
-* [Emerging Threats API docs](http://apidocs.emergingthreats.net/)
-* [Appium docs](http://appium.io/slate/en/master)
-* [Golazon Developer](http://developer.golazon.com)
-* [Dwolla API docs](https://docs.dwolla.com/)
-* [RozpisyZapasu API docs](http://www.rozpisyzapasu.cz/dev/api/)
-* [Codestar Framework Docs](http://codestarframework.com/documentation/)
-* [Buddycloud API](http://buddycloud.com/api)
-* [Crafty Clicks API](https://craftyclicks.co.uk/api/)
-* [Paracel API Reference](http://paracel.io/docs/api_reference.html)
-* [Switch Payments Documentation](http://switchpayments.com/docs/) & [API](http://switchpayments.com/developers/)
-* [Coinbase API Reference](https://developers.coinbase.com/api)
-* [Whispir.io API](https://whispir.github.io/api)
-* [NASA API](https://data.nasa.gov/developer/external/planetary/)
-* [CardPay API](https://developers.cardpay.com/)
-* [IBM Cloudant](https://docs.cloudant.com/api.html)
-* [Bitrix basis components](http://bbc.bitrix.expert/)
-* [viagogo API Documentation](http://developer.viagogo.net/)
-* [Fidor Bank API Documentation](http://docs.fidor.de/)
-* [Market Prophit API Documentation](http://developer.marketprophit.com/)
-* [OAuth.io API Documentation](http://docs.oauth.io/)
-* [Aircall for Developers](http://developer.aircall.io/)
-* [SupportKit API Docs](http://docs.supportkit.io/)
-* [SocialRadar's LocationKit Docs](https://docs.locationkit.io/)
-* [SafetyCulture API Documentation](https://developer.safetyculture.io/)
-* [hosting.de API Documentation](https://www.hosting.de/docs/api/)
-* [BlockCypher's API Documentation](http://dev.blockcypher.com)
-* [InterServer API Documentation](https://my.interserver.net/apidoc/)
-* [ActionHeroJS's API Documentation](http://www.actionherojs.com/docs)
+# Usage
 
-(Feel free to add your site to this list in a pull request!)
+The starting point is the BPulseJavaClient class. It implements two methods: getInstance() and sendPulse(PulsesRQ) to publish them via BPULSE COLLECTOR REST SERVICE.
 
-Need Help? Found a bug?
---------------------
+```java
+//get the BPulseJavaClient instance. It manages the pulses repository and begins the pulses notification timer.
+BPulseJavaClient client = BPulseJavaClient.getInstance();
+```
 
-Just [submit a issue](https://github.com/tripit/slate/issues) to the Slate Github if you need any help. And, of course, feel free to submit pull requests with bug fixes or changes.
+Then use a combination of *me.bpulse.domain.proto.collector.CollectorMessageRQ.PulsesRQ*, *me.bpulse.domain.proto.collector.CollectorMessageRQ.Value* and *me.bpulse.domain.proto.collector.CollectorMessageRQ.Pulse* in order to build the pulses you want to send according to the Pulse Definition made in BPULSE, for example:
+
+```java
+//Request instance
+PulsesRQ request;
+//Use the builder provided to create pulses instances
+PulsesRQ.Builder pulses = PulsesRQ.newBuilder();
+//Pulse version, send 1.0 always, we will use this field later.
+pulses.setVersion("1.0");
+
+//Use the Pulse builder to create each pulse individually
+Pulse.Builder pulse = Pulse.newBuilder();
+
+//Name of the pulse definition, the same as defined using the BPULSE web app
+pulse.setTypeId("bpulse_hotelbeds_jfp");
+//Time of the pulse, usually should be the current time but you can set whatever time you need
+pulse.setTime(System.currentTimeMillis());
+//
+pulse.setInstanceId(String.valueOf(1));
+
+//Use the Value builder to assing the different pulse values to each pulse
+Value.Builder value = Value.newBuilder();
+//Name of the pulse attribute
+value.setName("attribute_name");
+//Value of the current attribute
+value.addValues("attribute_value");
+//Add the created value to the pulse instance
+pulse.addValues(value);
+
+//Same as before but for a time value TODO Joda time
+value = Value.newBuilder();
+value.setName("fechaProceso");			
+value.addValues(fmt.print(new DateTime()));
+pulse.addValues(value);
+
+//Same as before but for a numeric value
+value = Value.newBuilder();
+value.setName("numeric_attribute");
+value.addValues("123456789");
+pulse.addValues(value);
+
+//Add the pulse to the pulses collection
+pulses.addPulse(pulse);
+
+//Then build the pulses request
+request = pulses.build();
+
+```
+
+Finally send the pulse created with:
+
+```java
+//invoke the operation for inserting the pulse into pulses repository.
+client.sendPulse(request);
+
+```
+
+And that's it!, now you are sending pulses to BPULSE and can see them using the web dashboard.
+
+## Available Configuration Parameters
+
+BPulse java client has a configuration file to define the main parameters for sending and processing pulses (pulses repository path, number of threads for notifying pulses via BPULSE COLLECTOR REST SERVICE, etc.). It's definition is expected through java options property **bpulse.client.config** (e.g **-Dbpulse.client.config=C:\tmp\config.properties**).
+
+All properties are defined below:
+
+| Variable name        | Description           |
+|:------------- |:------------- |
+|bpulse.client.periodInMinutesNextExecTimer|Delay time in minutes between timer executions for pulses notification (default value = 1). |
+|bpulse.client.periodInMinutesNextExecTimer|Delay time in minutes between timer executions for pulses notification (default value = 1). |
+|bpulse.client.maxNumberPulsesReadFromTimer|Max number of read pulses for each timer execution from pulsesRepositoryDB for sending to BPULSE COLLECTOR REST SERVICE (default value = 180000). |
+|bpulse.client.bpulseUsername|Client's Username for sending pulses to BPULSE COLLECTOR SERVICE. |
+|bpulse.client.bpulsePassword|Client's Password  for sending pulses to BPULSE COLLECTOR SERVICE. |
+|bpulse.client.bpulseRestURL| BPULSE COLLECTOR REST SERVICE URL. |
+|bpulse.client.pulsesRepositoryDBPath|System Path to create the Pulses Repository (e.g C:/tmp/pulses_repository). |
+|bpulse.client.pulsesRepositoryDBMaxSizeBytes|Pulses Repositories' Allowed max size in bytes (default value = 1073741824). |
+|bpulse.client.pulsesRepositoryMode|Pulses Repositories' Mode:  MEM=PULSES IN MEMORY DB= PULSES IN EMBEDDED DATABASE. |
+|bpulse.client.pulsesRepositoryMemMaxNumberPulses|When the pulses repositories' mode is MEM, it's necessary define the maximum number of pulses in memory(default value = 1000000). |
+
+An example of configuration file is shown:
 
 
-Contributors
---------------------
+## About Logging
+BPulse Java Client uses SLF4J API for register logs from pulse processing sending via BPULSE REST SERVICE. SLF4J uses a set of binding dependencies for each supported logging framework (log4j, tinylog, jdk logging, logback). If the target application uses someone of these frameworks, it's neccessary add the related 
+binding dependency like these:
 
-Slate was built by [Robert Lord](https://lord.io) while at [TripIt](http://tripit.com).
+* **SLF4J Logging Framework Bindings**
 
-Thanks to the following people who have submitted major pull requests:
+```xml
+<!-- Dependency for Tinylog binding -->
+<dependency>
+	<groupId>org.tinylog</groupId>
+	<artifactId>slf4j-binding</artifactId>
+	<version>1.0</version>
+</dependency>
 
-- [@chrissrogers](https://github.com/chrissrogers)
-- [@bootstraponline](https://github.com/bootstraponline)
-- [@realityking](https://github.com/realityking)
+<!-- Dependency for Logback binding -->
+<dependency>
+	<groupId>ch.qos.logback</groupId>
+	<artifactId>logback-classic</artifactId>
+	<version>1.0.13</version>
+</dependency>
 
-Also, thanks to [Sauce Labs](http://saucelabs.com) for helping sponsor the project.
+<!-- Dependency for Apache log4j binding -->
+<dependency> 
+	<groupId>org.slf4j</groupId> 
+	<artifactId>slf4j-log4j12</artifactId> 
+	<version>1.7.5</version> 
+</dependency>
 
-Special Thanks
---------------------
-- [Middleman](https://github.com/middleman/middleman)
-- [jquery.tocify.js](https://github.com/gfranko/jquery.tocify.js)
-- [middleman-syntax](https://github.com/middleman/middleman-syntax)
-- [middleman-gh-pages](https://github.com/neo/middleman-gh-pages)
-- [Font Awesome](http://fortawesome.github.io/Font-Awesome/)
+```
+
+Each binding is associated with a version of logging API (i.e in the log4j case, the version 1.7.5 of slf4j-log4j12 uses by default Apache log4j 1.2.17).
+If your target application uses another version for these logging APIs, you must exclude it from the maven dependency and manage your own logging version. 
+In the case of log4j it would be something like this:
+
+
+```xml
+<!-- Excludes the log4j default version managed by SLF4J binding -->
+<dependency> 
+	<groupId>org.slf4j</groupId> 
+	<artifactId>slf4j-log4j12</artifactId> 
+	<version>1.7.5</version> 
+	<exclusions> 
+		<exclusion> 
+			<groupId>log4j</groupId> 
+			<artifactId>log4j</artifactId> 
+		</exclusion> 
+	</exclusions> 
+</dependency>
+
+<!-- Includes your own log4j version (1.2.12 instead of 1.2.17 in this case) -->
+<dependency> 
+	<groupId>log4j</groupId> 
+	<artifactId>log4j</artifactId> 
+	<version>1.2.12</version> 
+</dependency>
+
+```
+
+## Logging Configuration Parameters
+
+After selecting the logging api, it's necessary to add a java option according to the used logging framework:
+
+**tinylog java option:** -Dtinylog.configuration=C:\tmp\tinylog.properties
+
+**Tinylog's properties file example:**
+
+```properties
+tinylog.writer = rollingfile
+tinylog.writer.filename = C:/tmp/log/bpulse-java-client-tinylog.log
+tinylog.writer.backups = 10
+tinylog.writer.label = timestamp
+tinylog.writer.policies = startup, size: 10KB
+```
+
+**log4j java option:** -Dlog4j.configuration=file:"C:\tmp\log4j.properties"
+
+**log4j's properties file example:**
+
+```properties
+##LOG4J CONFIGURATION##
+log4j.logger.bpulseLogger=INFO, bpulseLogger
+# File appender
+log4j.appender.bpulseLogger=org.apache.log4j.RollingFileAppender
+log4j.appender.bpulseLogger.layout=org.apache.log4j.PatternLayout
+#%-7p %d{(dd/MM/yyyy) HH:mm:ss} [%c{1}]%t %m%n
+#%d{yyyy-MM-dd HH:mm:ss} %-5p - %m%n
+log4j.appender.bpulseLogger.layout.ConversionPattern=%-7p %d{(dd/MM/yyyy) HH:mm:ss} [%c{1}]%t %m%n
+log4j.appender.bpulseLogger.File=C:/tmp/log/bpulse-java-client.log
+log4j.appender.bpulseLogger.MaxFileSize=25MB
+log4j.appender.bpulseLogger.MaxBackupIndex=10
+```
+
+**logback java option:** -Dlogback.configurationFile=C:\tmp\logback.xml
+
+**logback's properties file example:**
+
+```xml
+<configuration>
+<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <file>C:/tmp/log/bpulse-java-client-logback.log</file>
+
+    <encoder>
+      <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="debug">
+    <appender-ref ref="FILE" />
+    <appender-ref ref="STDOUT" />
+  </root>
+</configuration>
+``` 
+
+In case of the target system has its own logging properties file, it's necessary to add the corresponding lines mentioned above to it.
+
+# Contact us
+
+You can reach the Developer Platform team at jtenganan@innova4j.com
+
+# License
+
+The Bpulse Protobuf Java is licensed under the Apache License 2.0. Details can be found in the LICENSE file.
+
